@@ -27,7 +27,7 @@ docker run  -d --name=jobtest jobtest:1.0
 Start-Sleep 20
 Write-Output "Getting Container Logs"
 docker logs jobtest
-Write-Output "Removing Container updated from GIT"
+Write-Output "Removing Container testing auto-pull"
 docker rm jobtest]]></script>
         <scriptargs />
         <scriptinterpreter>Powershell.exe -executionpolicy bypass </scriptinterpreter>
