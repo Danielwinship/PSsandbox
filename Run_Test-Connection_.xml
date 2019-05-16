@@ -1,0 +1,38 @@
+<joblist>
+  <job>
+    <defaultTab>summary</defaultTab>
+    <description>Runs a container and logs test-connection output</description>
+    <dispatch>
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>false</keepgoing>
+      <rankOrder>ascending</rankOrder>
+      <successOnEmptyNodeFilter>false</successOnEmptyNodeFilter>
+      <threadcount>1</threadcount>
+    </dispatch>
+    <executionEnabled>true</executionEnabled>
+    <id>5eaf4197-ab65-4754-acca-b74e3e992a18</id>
+    <loglevel>INFO</loglevel>
+    <name>Run Test-Connection </name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <nodefilters>
+      <filter>name: 2019Test</filter>
+    </nodefilters>
+    <nodesSelectedByDefault>true</nodesSelectedByDefault>
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <fileExtension>ps1</fileExtension>
+        <script><![CDATA[Write-Output "Starting Container"
+docker run  -d --name=jobtest jobtest:1.0
+Start-Sleep 20
+Write-Output "Getting Container Logs"
+docker logs jobtest
+Write-Output "Removing Container"
+docker rm jobtest]]></script>
+        <scriptargs />
+        <scriptinterpreter>Powershell.exe -executionpolicy bypass </scriptinterpreter>
+      </command>
+    </sequence>
+    <uuid>5eaf4197-ab65-4754-acca-b74e3e992a18</uuid>
+  </job>
+</joblist>
