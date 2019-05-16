@@ -1,1 +1,1 @@
-Enter-PSSession integradevdw
+get-service
