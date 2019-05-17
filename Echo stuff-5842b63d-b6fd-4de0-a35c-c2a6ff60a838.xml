@@ -1,0 +1,32 @@
+<joblist>
+  <job>
+    <defaultTab>output</defaultTab>
+    <description></description>
+    <dispatch>
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>false</keepgoing>
+      <rankOrder>ascending</rankOrder>
+      <successOnEmptyNodeFilter>false</successOnEmptyNodeFilter>
+      <threadcount>1</threadcount>
+    </dispatch>
+    <executionEnabled>true</executionEnabled>
+    <id>5842b63d-b6fd-4de0-a35c-c2a6ff60a838</id>
+    <loglevel>INFO</loglevel>
+    <name>Echo stuff</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <nodefilters>
+      <filter></filter>
+    </nodefilters>
+    <nodesSelectedByDefault>false</nodesSelectedByDefault>
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <fileExtension>ps1</fileExtension>
+        <script><![CDATA[Echo "some stuff"]]></script>
+        <scriptargs />
+        <scriptinterpreter>powershell</scriptinterpreter>
+      </command>
+    </sequence>
+    <uuid>5842b63d-b6fd-4de0-a35c-c2a6ff60a838</uuid>
+  </job>
+</joblist>
