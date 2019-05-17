@@ -1,0 +1,177 @@
+<joblist>
+  <job>
+    <context>
+      <options preserveOrder='true'>
+        <option name='INSTALLATIONNAME' required='true'>
+          <description>Customer installation name</description>
+          <label>Installation</label>
+        </option>
+        <option name='IDENTIFIVERSION' required='true'>
+          <description>The version of masterupgrader</description>
+          <label>iDentifi Version</label>
+        </option>
+        <option name='CONTAINERHOST' required='true' value='IntDevops'>
+          <description>The machine that will host the masterupgrader and webserver Docker containers.</description>
+          <hidden>true</hidden>
+          <label>Container Host</label>
+        </option>
+        <option name='STAGESQLSERVER' required='true' value='172.16.20.134\Q4'>
+          <description>The SQL Server instance where the iDentifi databases will be restored.</description>
+          <hidden>true</hidden>
+          <label>Stage SQL Server</label>
+        </option>
+        <option name='STAGESQLUSER' required='true' value='sa'>
+          <description>The SQL user account on the Stage SQL Server instance with drop/restore rights.</description>
+          <hidden>true</hidden>
+          <label>Stage SQL User</label>
+        </option>
+        <option name='STAGESQLPASSWORD' required='true' secure='true' valueExposed='true'>
+          <label>Stage SQL Password</label>
+        </option>
+        <option name='DRIVELETTER' required='true' value='Z'>
+          <description>Drive letter of mapped network path for logs and storage (for STAGE)</description>
+          <hidden>true</hidden>
+          <label>Drive Letter</label>
+        </option>
+        <option name='PORTNUMBER' required='true' value='9005'>
+          <description>The port number on the container host to be mapped to the webserver container.</description>
+          <hidden>true</hidden>
+          <label>Host Port</label>
+        </option>
+        <option name='STAGEHOST' value='qadhost-2019'>
+          <description>Docker host for STAGE</description>
+          <hidden>true</hidden>
+          <label>Stage Host</label>
+        </option>
+      </options>
+    </context>
+    <defaultTab>output</defaultTab>
+    <description>[META] Job to coordinate staging an iDentifi.Net upgrade for a customer</description>
+    <dispatch>
+      <excludePrecedence>true</excludePrecedence>
+      <keepgoing>false</keepgoing>
+      <rankOrder>ascending</rankOrder>
+      <successOnEmptyNodeFilter>false</successOnEmptyNodeFilter>
+      <threadcount>1</threadcount>
+    </dispatch>
+    <executionEnabled>true</executionEnabled>
+    <group>STAGE</group>
+    <id>8bc42cd2-1eee-433c-a01e-b4ae6dc1e3b6</id>
+    <loglevel>INFO</loglevel>
+    <name>Stage iDentifi.Net Database Upgrade</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <nodefilters>
+      <filter>name: ${option.CONTAINERHOST}</filter>
+    </nodefilters>
+    <nodesSelectedByDefault>true</nodesSelectedByDefault>
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <description>Get data from Live webserver</description>
+        <jobref group='SHARED' name='Export Webserver Container Data' nodeStep='true'>
+          <importOptions>true</importOptions>
+          <nodefilters>
+            <filter>name: ${option.CONTAINERHOST}</filter>
+          </nodefilters>
+          <uuid>6ea1034e-1c31-4cc3-ab19-10abe678557f</uuid>
+        </jobref>
+      </command>
+      <command>
+        <description>Stop Live webserver</description>
+        <jobref group='SHARED' name='Stop container' nodeStep='true'>
+          <arg line='-CONTAINERNAME ${option.INSTALLATIONNAME}' />
+          <nodefilters>
+            <filter>name: ${option.CONTAINERHOST}</filter>
+          </nodefilters>
+          <uuid>1188a4aa-1bba-43a7-bec2-872e579aa774</uuid>
+        </jobref>
+      </command>
+      <command>
+        <description>Backup Live DBs</description>
+        <jobref group='SHARED' name='Backup iDentifi databases' nodeStep='true'>
+          <arg line='-IDENTIFISQLSERVER ${export.IDENTIFISQLSERVER} -IDENTIFISQLUSER ${export.IDENTIFISQLUSER} -IDENTIFISQLPASSWORD ${export.IDENTIFISQLPASSWORD}' />
+          <importOptions>true</importOptions>
+          <nodefilters>
+            <filter>name: ${option.CONTAINERHOST}</filter>
+          </nodefilters>
+          <uuid>28521f25-2b55-458a-9c5a-af89fa083626</uuid>
+        </jobref>
+      </command>
+      <command>
+        <description>Restart Live webserver</description>
+        <jobref group='SHARED' name='Start container' nodeStep='true'>
+          <arg line='-CONTAINERNAME ${option.INSTALLATIONNAME}' />
+          <nodefilters>
+            <filter>name: ${option.CONTAINERHOST}</filter>
+          </nodefilters>
+          <uuid>c243ecc6-3e5b-4e61-9115-bff7afe2704e</uuid>
+        </jobref>
+      </command>
+      <command>
+        <description>Drop DBs in Stage</description>
+        <jobref group='STAGE' name='Drop iDentifi databases' nodeStep='true'>
+          <arg line='-IDENTIFISQLSERVER ${option.STAGESQLSERVER} -IDENTIFISQLUSER ${option.STAGESQLUSER} -IDENTIFISQLPASSWORD ${option.STAGESQLPASSWORD}' />
+          <importOptions>true</importOptions>
+          <nodefilters>
+            <filter>name: ${option.CONTAINERHOST}</filter>
+          </nodefilters>
+          <uuid>21ec1452-b0fe-4c69-83d3-684de7e334b5</uuid>
+        </jobref>
+      </command>
+      <command>
+        <description>Restore DBs in Stage</description>
+        <jobref group='SHARED' name='Restore iDentifi databases' nodeStep='true'>
+          <arg line='-IDENTIFISQLSERVER ${option.STAGESQLSERVER} -IDENTIFISQLUSER ${option.STAGESQLUSER} -IDENTIFISQLPASSWORD ${option.STAGESQLPASSWORD}' />
+          <importOptions>true</importOptions>
+          <nodefilters>
+            <filter>name: ${option.CONTAINERHOST}</filter>
+          </nodefilters>
+          <uuid>003b714b-504d-4aab-97dd-60472bd18b04</uuid>
+        </jobref>
+      </command>
+      <command>
+        <jobref group='SHARED' name='Upgrade iDentifi databases' nodeStep='true'>
+          <arg line='-IDENTIFISQLSERVER ${option.STAGESQLSERVER} -IDENTIFISQLUSER ${option.STAGESQLUSER} -IDENTIFISQLPASSWORD ${option.STAGESQLPASSWORD}' />
+          <importOptions>true</importOptions>
+          <nodefilters>
+            <filter>name: ${option.STAGEHOST}</filter>
+          </nodefilters>
+          <uuid>caf3c51e-de30-4f7b-9d6e-ab8c31293b6c</uuid>
+        </jobref>
+      </command>
+      <command>
+        <description>Launch test webserver</description>
+        <jobref group='SHARED' name='Create Webserver Container' nodeStep='true'>
+          <arg line='-CONTAINERNAME ${option.INSTALLATIONNAME}.test -IDENTIFISQLSERVER ${option.STAGESQLSERVER} -IDENTIFISQLUSER ${option.STAGESQLUSER} -IDENTIFISQLPASSWORD ${option.STAGESQLPASSWORD}' />
+          <importOptions>true</importOptions>
+          <nodefilters>
+            <filter>name: ${option.STAGEHOST}</filter>
+          </nodefilters>
+          <uuid>d031b609-8a47-48fe-bc8f-9db3b33e9b55</uuid>
+        </jobref>
+      </command>
+      <command>
+        <description>Check BGP for errors</description>
+        <jobref group='SHARED' name='Verify BGP no errors' nodeStep='true'>
+          <importOptions>true</importOptions>
+          <nodefilters>
+            <filter>name: ${option.CONTAINERHOST}</filter>
+          </nodefilters>
+          <uuid>e404c9ce-eb95-423e-be65-0a7e28a5bd6f</uuid>
+        </jobref>
+      </command>
+      <command>
+        <description>Check logon</description>
+        <jobref group='SHARED' name='Verify iDentifi Logon' nodeStep='true'>
+          <arg line='-CONTAINERHOST  ${option.STAGEHOST}' />
+          <importOptions>true</importOptions>
+          <nodefilters>
+            <filter>name: ${option.CONTAINERHOST}</filter>
+          </nodefilters>
+          <uuid>feb1b9b3-d5e1-4018-9def-96c7e21af44a</uuid>
+        </jobref>
+      </command>
+    </sequence>
+    <uuid>8bc42cd2-1eee-433c-a01e-b4ae6dc1e3b6</uuid>
+  </job>
+</joblist>
