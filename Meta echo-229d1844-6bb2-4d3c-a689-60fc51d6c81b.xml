@@ -1,0 +1,30 @@
+<joblist>
+  <job>
+    <context>
+      <options preserveOrder='true'>
+        <option name='CONTAINERHOST'>
+          <label>host</label>
+        </option>
+      </options>
+    </context>
+    <defaultTab>output</defaultTab>
+    <description>[Meta] job to orch echos</description>
+    <executionEnabled>true</executionEnabled>
+    <id>229d1844-6bb2-4d3c-a689-60fc51d6c81b</id>
+    <loglevel>INFO</loglevel>
+    <name>Meta echo</name>
+    <nodeFilterEditable>false</nodeFilterEditable>
+    <scheduleEnabled>true</scheduleEnabled>
+    <sequence keepgoing='false' strategy='node-first'>
+      <command>
+        <jobref name='Echo stuff' nodeStep='true'>
+          <nodefilters>
+            <filter>name: ${option.CONTAINERHOST}</filter>
+          </nodefilters>
+          <uuid>5842b63d-b6fd-4de0-a35c-c2a6ff60a838</uuid>
+        </jobref>
+      </command>
+    </sequence>
+    <uuid>229d1844-6bb2-4d3c-a689-60fc51d6c81b</uuid>
+  </job>
+</joblist>
